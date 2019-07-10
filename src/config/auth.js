@@ -1,3 +1,3 @@
 export default {
-  secret: 'mysecret',
+  secret: process.env.APP_SECRET,
 };

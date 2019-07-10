@@ -38,7 +38,9 @@ class UserControler {
       return res.status(400).json({ error: 'Validation invalid' });
     }
 
-    return res.json(req.body);
+    const user = User.update(req.body);
+
+    return res.json(user);
   }
 }
 
