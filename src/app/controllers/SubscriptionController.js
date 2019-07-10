@@ -1,5 +1,6 @@
 import { isBefore, format } from 'date-fns';
 import pt from 'date-fns/locale/pt';
+import { Op } from 'sequelize';
 import Subscription from '../models/Subscription';
 import Meetup from '../models/Meetup';
 import Mail from '../../lib/Mail';
@@ -7,14 +8,22 @@ import User from '../models/User';
 
 class SubscriptionController {
   async index(req, res) {
-    const subscriptions = await Subscription.findOne({
-      where: { user_id: req.userId },
+    const subscriptions = await Subscription.findAll({
+      where: {
+        user_id: req.userId,
+      },
       include: [
         {
           model: Meetup,
           as: 'meetup',
+          where: {
+            date: {
+              [Op.gt]: new Date(),
+            },
+          },
         },
       ],
+      order: [[{ model: Meetup, as: 'meetup' }, 'date']],
     });
     return res.json(subscriptions);
   }
