@@ -17,9 +17,9 @@ class UserControler {
       return res.status(400).json({ error: 'Validation invalid' });
     }
 
-    const user = await User.create(req.body);
+    const { id, name, email } = await User.create(req.body);
 
-    return res.json(user);
+    return res.json({ id, name, email });
   }
 
   async update(req, res) {
@@ -38,9 +38,9 @@ class UserControler {
       return res.status(400).json({ error: 'Validation invalid' });
     }
 
-    const user = User.update(req.body);
+    const { id, name, email } = User.update(req.body);
 
-    return res.json(user);
+    return res.json({ id, name, email });
   }
 }
 
