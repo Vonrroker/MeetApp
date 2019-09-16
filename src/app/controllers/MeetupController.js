@@ -7,21 +7,26 @@ import User from '../models/User';
 class MeetupController {
   async index(req, res) {
     const schema = Yup.object().shape({
-      page: Yup.number().required(),
-      date: Yup.date().required(),
+      page: Yup.number(),
+      date: Yup.date(),
     });
 
     if (!(await schema.isValid(req.query))) {
       return res.status(400).json({ error: 'Validation invalid' });
     }
     const { date, page = 1 } = req.query;
-    const dateParse = parseISO(date);
+    const where = {};
+
+    if (date) {
+      const searchDate = parseISO(date);
+
+      where.date = {
+        [Op.between]: [startOfDay(searchDate), endOfDay(searchDate)],
+      };
+    }
+
     const meetups = await Meetup.findAll({
-      where: {
-        date: {
-          [Op.between]: [startOfDay(dateParse), endOfDay(dateParse)],
-        },
-      },
+      where,
       limit: 10,
       offset: (page - 1) * 10,
       include: [

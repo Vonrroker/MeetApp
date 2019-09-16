@@ -37,8 +37,9 @@ class UserControler {
     if (!(await schema.isValid(req.body))) {
       return res.status(400).json({ error: 'Validation invalid' });
     }
+    const user = await User.findByPk(req.userId);
 
-    const { id, name, email } = User.update(req.body);
+    const { id, name, email } = await user.update(req.body);
 
     return res.json({ id, name, email });
   }
