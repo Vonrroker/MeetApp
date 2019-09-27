@@ -118,7 +118,14 @@ class MeetupController {
 
     await meetup.update(req.body);
 
-    meetup.save();
+    await meetup.reload({
+      include: [
+        {
+          model: File,
+          as: 'file',
+        },
+      ],
+    });
 
     return res.json(meetup);
   }
