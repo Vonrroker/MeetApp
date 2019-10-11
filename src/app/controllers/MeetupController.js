@@ -36,7 +36,12 @@ class MeetupController {
           as: 'user',
           attributes: ['id', 'name', 'email'],
         },
+        {
+          model: File,
+          as: 'file',
+        },
       ],
+      order: ['date'],
     });
     return res.json(meetups);
   }

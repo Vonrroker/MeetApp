@@ -5,6 +5,7 @@ import Subscription from '../models/Subscription';
 import Meetup from '../models/Meetup';
 import Mail from '../../lib/Mail';
 import User from '../models/User';
+import File from '../models/File';
 
 class SubscriptionController {
   async index(req, res) {
@@ -21,6 +22,17 @@ class SubscriptionController {
               [Op.gt]: new Date(),
             },
           },
+          include: [
+            {
+              model: User,
+              as: 'user',
+              attributes: ['id', 'name', 'email'],
+            },
+            {
+              model: File,
+              as: 'file',
+            },
+          ],
         },
       ],
       order: [[{ model: Meetup, as: 'meetup' }, 'date']],
@@ -111,6 +123,18 @@ class SubscriptionController {
     });
 
     return res.json({ subscription });
+  }
+
+  async delete(req, res) {
+    const subscription = await Subscription.findByPk(req.params.id);
+
+    if (subscription && subscription.user_id !== req.userId) {
+      return res.status(401).json({ error: 'Permission denied.' });
+    }
+
+    await subscription.destroy();
+
+    return res.json('ok');
   }
 }
 
