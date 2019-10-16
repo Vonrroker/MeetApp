@@ -4,6 +4,7 @@ import { Op } from 'sequelize';
 import Meetup from '../models/Meetup';
 import User from '../models/User';
 import File from '../models/File';
+import Subscription from '../models/Subscription';
 
 class MeetupController {
   async index(req, res) {
@@ -16,7 +17,18 @@ class MeetupController {
       return res.status(400).json({ error: 'Validation invalid' });
     }
     const { date, page = 1 } = req.query;
-    const where = {};
+
+    const subscribedMeetups = await Subscription.findAll({
+      where: { user_id: req.userId },
+      attributes: ['meetup_id'],
+      raw: true,
+    });
+
+    const where = {
+      id: {
+        [Op.notIn]: subscribedMeetups.map(meetup => meetup.meetup_id),
+      },
+    };
 
     if (date) {
       const searchDate = parseISO(date);
@@ -39,7 +51,17 @@ class MeetupController {
         {
           model: File,
           as: 'file',
+          attributes: ['id', 'name', 'url', 'path'],
         },
+      ],
+      attributes: [
+        'id',
+        'user_id',
+        'banner_id',
+        'title',
+        'description',
+        'locale',
+        'date',
       ],
       order: ['date'],
     });
